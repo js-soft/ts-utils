@@ -14,20 +14,26 @@ export class EventEmitter2EventBus implements EventBus {
         this.emitter = new EventEmitter2({ wildcard: true, maxListeners: 50, verboseMemoryLeak: true });
     }
 
-    public subscribe<TEvent = any>(subscriptionTarget: SubscriptionTarget, handler: EventHandler<TEvent>): number {
+    public subscribe<TEvent = any>(
+        subscriptionTarget: SubscriptionTarget<TEvent>,
+        handler: EventHandler<TEvent>
+    ): number {
         return this.registerHandler(subscriptionTarget, handler);
     }
 
-    public subscribeOnce<TEvent = any>(subscriptionTarget: SubscriptionTarget, handler: EventHandler<TEvent>): number {
+    public subscribeOnce<TEvent = any>(
+        subscriptionTarget: SubscriptionTarget<TEvent>,
+        handler: EventHandler<TEvent>
+    ): number {
         return this.registerHandler(subscriptionTarget, handler, true);
     }
 
-    public unsubscribe(subscriptionTarget: SubscriptionTarget, subscriptionId: number): boolean {
+    public unsubscribe<TEvent = any>(subscriptionTarget: SubscriptionTarget<TEvent>, subscriptionId: number): boolean {
         return this.unregisterHandler(subscriptionTarget, subscriptionId);
     }
 
     private registerHandler<TEvent>(
-        subscriptionTarget: SubscriptionTarget,
+        subscriptionTarget: SubscriptionTarget<TEvent>,
         handler: EventHandler<TEvent>,
         isOneTimeHandler = false
     ): number {
@@ -52,7 +58,10 @@ export class EventEmitter2EventBus implements EventBus {
         return handlerId;
     }
 
-    private unregisterHandler(subscriptionTarget: SubscriptionTarget, handlerId: number): boolean {
+    private unregisterHandler<TEvent = any>(
+        subscriptionTarget: SubscriptionTarget<TEvent>,
+        handlerId: number
+    ): boolean {
         const subscriptionTargetInfo = SubscriptionTargetInfo.from(subscriptionTarget);
         const handlerWrapper = this.wrappers.get(handlerId);
         if (!handlerWrapper) {
