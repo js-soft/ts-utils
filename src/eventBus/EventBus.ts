@@ -1,6 +1,6 @@
 import { Event } from "../events/Event";
 
-export type EventHandler<TEvent> = (event: TEvent) => void;
+export type EventHandler<TEvent> = (event: TEvent) => void | Promise<void>;
 export type EventConstructor<TEvent> = new (...args: any[]) => TEvent;
 export type SubscriptionTarget<TEvent> = string | EventConstructor<TEvent>;
 
