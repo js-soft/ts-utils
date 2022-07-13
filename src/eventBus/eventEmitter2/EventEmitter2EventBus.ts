@@ -1,4 +1,5 @@
 import { ConstructorOptions, EventEmitter2, Listener } from "eventemitter2";
+import { resolve } from "path";
 import "reflect-metadata";
 import { Event } from "../../events/Event";
 import { EventBus, EventHandler, getEventNamespaceFromObject, SubscriptionTarget } from "../EventBus";
@@ -113,11 +114,13 @@ export class EventEmitter2EventBus implements EventBus {
                 }
             };
         });
-
         if (!timeout) return await decrementPromise;
 
         const timeoutPromise = new Promise<void>((_resolve, reject) =>
-            setTimeout(() => reject(new Error("timeout exceeded while waiting for events to process")), timeout)
+            setTimeout(() => {
+                if (this.runningTasks === 0) resolve();
+                else reject(new Error("timeout exceeded while waiting for events to process"));
+            }, timeout)
         );
         return await Promise.race([decrementPromise, timeoutPromise]);
     }
