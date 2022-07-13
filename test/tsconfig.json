@@ -17,23 +17,14 @@
         "strictNullChecks": true,
         "strictPropertyInitialization": false,
         "downlevelIteration": true,
-        "lib": [
-            "es2021",
-            "dom"
-        ],
-        "typeRoots": [
-            "../node_modules/@types"
-        ],
+        "lib": ["es2021", "dom"],
+        "typeRoots": ["../node_modules/@types"],
         "baseUrl": "../",
         "paths": {
-            "chaimodule": [
-                "test/types/globalsals"
-            ]
+            "chaimodule": ["test/types/globalsals"]
         },
         "noEmit": true
     },
-    "include": [
-        "**/*.ts"
-    ],
+    "include": ["**/*.ts"],
     "exclude": []
 }
