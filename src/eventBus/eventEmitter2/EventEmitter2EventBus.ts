@@ -119,14 +119,17 @@ export class EventEmitter2EventBus implements EventBus {
             });
         }
 
-        const timeoutPromise = new Promise<void>((resolve, reject) =>
-            setTimeout(() => {
+        let timeoutId: NodeJS.Timeout;
+        const timeoutPromise = new Promise<void>((resolve, reject) => {
+            timeoutId = setTimeout(() => {
                 if (this.runningTasks === 0) return resolve();
                 reject(new Error("timeout exceeded while waiting for events to process"));
-            }, timeout)
-        );
+            }, timeout);
+        });
+
         return await Promise.race([decrementPromise, timeoutPromise]).finally(() => {
             this.onTasksDecrement = undefined;
+            clearTimeout(timeoutId);
         });
     }
 }
