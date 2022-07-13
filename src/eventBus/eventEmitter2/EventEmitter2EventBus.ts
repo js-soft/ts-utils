@@ -19,12 +19,10 @@ export class EventEmitter2EventBus implements EventBus {
     private removeRunningTask(): void {
         this.runningTasks--;
 
-        this.onTasksDecrement();
+        this.onTasksDecrement?.();
     }
 
-    private onTasksDecrement = () => {
-        // do nothing
-    };
+    private onTasksDecrement?: () => void = undefined;
 
     public constructor(options?: ConstructorOptions) {
         this.emitter = new EventEmitter2({ ...options, wildcard: true, maxListeners: 50, verboseMemoryLeak: true });
@@ -103,6 +101,8 @@ export class EventEmitter2EventBus implements EventBus {
     }
 
     public async close(timeout?: number): Promise<void> {
+        if (typeof this.onTasksDecrement !== "undefined") throw new Error("the eventbus is already closing");
+
         this.emitter.removeAllListeners();
 
         if (this.runningTasks === 0) return;
@@ -114,7 +114,11 @@ export class EventEmitter2EventBus implements EventBus {
                 }
             };
         });
-        if (!timeout) return await decrementPromise;
+        if (!timeout) {
+            return await decrementPromise.finally(() => {
+                this.onTasksDecrement = undefined;
+            });
+        }
 
         const timeoutPromise = new Promise<void>((_resolve, reject) =>
             setTimeout(() => {
@@ -122,6 +126,8 @@ export class EventEmitter2EventBus implements EventBus {
                 else reject(new Error("timeout exceeded while waiting for events to process"));
             }, timeout)
         );
-        return await Promise.race([decrementPromise, timeoutPromise]);
+        return await Promise.race([decrementPromise, timeoutPromise]).finally(() => {
+            this.onTasksDecrement = undefined;
+        });
     }
 }
