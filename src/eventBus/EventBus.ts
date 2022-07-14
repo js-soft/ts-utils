@@ -1,6 +1,6 @@
 import { Event } from "../events/Event";
 
-export type EventHandler<TEvent> = (event: TEvent) => void;
+export type EventHandler<TEvent> = (event: TEvent) => void | Promise<void>;
 export type EventConstructor<TEvent> = new (...args: any[]) => TEvent;
 export type SubscriptionTarget<TEvent> = string | EventConstructor<TEvent>;
 
@@ -25,10 +25,7 @@ export abstract class EventBus {
         handler: EventHandler<TEvent>
     ): number;
 
-    public abstract unsubscribe<TEvent = any>(
-        subscriptionTarget: SubscriptionTarget<TEvent>,
-        subscriptionId: number
-    ): boolean;
+    public abstract unsubscribe(subscriptionId: number): boolean;
 
     public abstract publish(event: object): void;
 }
