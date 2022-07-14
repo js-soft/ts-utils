@@ -25,10 +25,7 @@ describe("EventEmitter2EventBus", () => {
     });
 
     test("timeouts while processing the events when the events take to long", async () => {
-        eventBus.subscribe("test", async () => {
-            await sleep(500);
-            numberOfTriggeredEvents++;
-        });
+        eventBus.subscribe("test", async () => await sleep(500));
 
         eventBus.publish(new Event("test"));
 
