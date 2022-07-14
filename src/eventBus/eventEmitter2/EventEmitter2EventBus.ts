@@ -9,19 +9,7 @@ export class EventEmitter2EventBus implements EventBus {
 
     private readonly listeners = new Map<number, Listener>();
     private nextId = 0;
-
-    private runningTasks = 0;
-    private addRunningTask(): void {
-        this.runningTasks++;
-    }
-
-    private removeRunningTask(): void {
-        this.runningTasks--;
-
-        this.onTasksDecrement?.();
-    }
-
-    private onTasksDecrement?: () => void = undefined;
+    private invocationPromises: (Promise<void> | void)[] = [];
 
     public constructor(options?: ConstructorOptions) {
         this.emitter = new EventEmitter2({ ...options, wildcard: true, maxListeners: 50, verboseMemoryLeak: true });
@@ -58,9 +46,10 @@ export class EventEmitter2EventBus implements EventBus {
                 return;
             }
 
-            this.addRunningTask();
-            await handler(event);
-            this.removeRunningTask();
+            const invocationPromise = (async () => await handler(event))();
+            this.invocationPromises.push(invocationPromise);
+            await invocationPromise;
+            this.invocationPromises = this.invocationPromises.filter((p) => p !== invocationPromise);
 
             if (isOneTimeHandler) this.listeners.delete(listenerId);
         };
@@ -100,36 +89,26 @@ export class EventEmitter2EventBus implements EventBus {
     }
 
     public async close(timeout?: number): Promise<void> {
-        if (typeof this.onTasksDecrement !== "undefined") throw new Error("the eventbus is already closing");
-
         this.emitter.removeAllListeners();
 
-        if (this.runningTasks === 0) return;
-
-        const decrementPromise = new Promise<void>((resolve) => {
-            this.onTasksDecrement = () => {
-                if (this.runningTasks === 0) {
-                    resolve();
-                }
-            };
+        const waitForInvocations = Promise.all(this.invocationPromises).catch(() => {
+            /* ignore errors */
         });
+
         if (!timeout) {
-            return await decrementPromise.finally(() => {
-                this.onTasksDecrement = undefined;
-            });
+            await waitForInvocations;
+            return;
         }
 
         let timeoutId: NodeJS.Timeout;
-        const timeoutPromise = new Promise<void>((resolve, reject) => {
+        const timeoutPromise = new Promise<void>((_, reject) => {
             timeoutId = setTimeout(() => {
-                if (this.runningTasks === 0) return resolve();
                 reject(new Error("timeout exceeded while waiting for events to process"));
             }, timeout);
         });
 
-        return await Promise.race([decrementPromise, timeoutPromise]).finally(() => {
-            this.onTasksDecrement = undefined;
-            clearTimeout(timeoutId);
-        });
+        await Promise.race([waitForInvocations, timeoutPromise]);
+
+        clearTimeout(timeoutId!);
     }
 }
