@@ -28,6 +28,8 @@ export abstract class EventBus {
     public abstract unsubscribe(subscriptionId: number): boolean;
 
     public abstract publish(event: object): void;
+
+    public abstract close(timeout?: number): Promise<void> | void;
 }
 
 export function getEventNamespaceFromObject(targetObject: Event): string {
