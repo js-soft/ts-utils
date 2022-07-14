@@ -25,10 +25,7 @@ export abstract class EventBus {
         handler: EventHandler<TEvent>
     ): number;
 
-    public abstract unsubscribe<TEvent = any>(
-        subscriptionTarget: SubscriptionTarget<TEvent>,
-        subscriptionId: number
-    ): boolean;
+    public abstract unsubscribe(subscriptionId: number): boolean;
 
     public abstract publish(event: object): void;
 }

@@ -29,7 +29,7 @@ export class EventEmitter2EventBus implements EventBus {
         return this.registerHandler(subscriptionTarget, handler, true);
     }
 
-    public unsubscribe<TEvent = any>(_subscriptionTarget: SubscriptionTarget<TEvent>, subscriptionId: number): boolean {
+    public unsubscribe(subscriptionId: number): boolean {
         return this.unregisterHandler(subscriptionId);
     }
 
@@ -55,12 +55,12 @@ export class EventEmitter2EventBus implements EventBus {
         };
 
         if (isOneTimeHandler) {
-            const listener = this.emitter.once(subscriptionTargetInfo.namespace, handlerWrapper);
+            const listener = this.emitter.once(subscriptionTargetInfo.namespace, handlerWrapper, { objectify: true });
             this.listeners.set(listenerId, listener as Listener);
             return listenerId;
         }
 
-        const listener = this.emitter.on(subscriptionTargetInfo.namespace, handlerWrapper);
+        const listener = this.emitter.on(subscriptionTargetInfo.namespace, handlerWrapper, { objectify: true });
         this.listeners.set(listenerId, listener as Listener);
         return listenerId;
     }
