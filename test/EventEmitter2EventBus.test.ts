@@ -13,7 +13,7 @@ describe("EventEmitter2EventBus", () => {
         counter = 0;
     });
 
-    it("should process events before shutting down", async () => {
+    test("processes events before shutting down", async () => {
         eventBus.subscribe("test", async () => {
             await sleep(500);
             eventsList.push(counter++);
@@ -25,12 +25,10 @@ describe("EventEmitter2EventBus", () => {
         await eventBus.close();
         eventsList.push("closed");
 
-        expect(eventsList).toEqual([0, 1, "closed"]);
+        expect(eventsList).toStrictEqual([0, 1, "closed"]);
     });
 
-    it("should timeout processing the events when the events take to long", async () => {
-        expect.assertions(1);
-
+    test("timeouts while processing the events when the events take to long", async () => {
         eventBus.subscribe("test", async () => {
             await sleep(500);
             eventsList.push(counter++);
@@ -38,12 +36,12 @@ describe("EventEmitter2EventBus", () => {
 
         eventBus.publish(new Event("test"));
 
-        await expect(eventBus.close(10)).rejects.toEqual(
+        await expect(eventBus.close(10)).rejects.toStrictEqual(
             new Error("timeout exceeded while waiting for events to process")
         );
     });
 
-    it("should only subscribe once", async () => {
+    test("subscribes once", async () => {
         eventBus.subscribeOnce("test", () => {
             eventsList.push(counter++);
         });
@@ -53,10 +51,10 @@ describe("EventEmitter2EventBus", () => {
 
         await sleep(20);
 
-        expect(eventsList).toEqual([0]);
+        expect(eventsList).toStrictEqual([0]);
     });
 
-    it("should unsubscribe from a subscribed event", () => {
+    test("unsubscribes from a subscribed event", () => {
         const subscriptionId = eventBus.subscribe("test", () => {
             eventsList.push(counter++);
         });
@@ -66,10 +64,10 @@ describe("EventEmitter2EventBus", () => {
 
         eventBus.publish(new Event("test"));
 
-        expect(eventsList).toEqual([0]);
+        expect(eventsList).toStrictEqual([0]);
     });
 
-    it("should unsubscribe from a subscribed event using subscribeOnce", async () => {
+    test("unsubscribes from a subscribed event using subscribeOnce", async () => {
         const subscriptionId = eventBus.subscribeOnce("test", () => {
             eventsList.push(counter++);
         });
@@ -79,6 +77,6 @@ describe("EventEmitter2EventBus", () => {
 
         await sleep(20);
 
-        expect(eventsList).toEqual([]);
+        expect(eventsList).toStrictEqual([]);
     });
 });

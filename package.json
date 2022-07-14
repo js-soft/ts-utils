@@ -15,7 +15,7 @@
     "scripts": {
         "build": "tsc",
         "lint": "npm run lint:prettier && npm run lint:eslint",
-        "lint:eslint": "eslint --ext ts ./src",
+        "lint:eslint": "eslint --ext ts ./src ./test",
         "lint:prettier": "prettier --check .",
         "test": "jest"
     },

@@ -1,8 +1,8 @@
 {
-    "ignorePatterns": ["/*", "!/src"],
-    "extends": ["@js-soft/ts"],
+    "ignorePatterns": ["/*", "!/src", "!/test"],
+    "extends": ["@js-soft/ts", "@js-soft/ts/jest"],
     "parserOptions": {
-        "project": ["./tsconfig.json"]
+        "project": ["./tsconfig.json", "./test/tsconfig.json"]
     },
     "rules": {}
 }
