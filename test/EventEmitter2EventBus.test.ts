@@ -2,36 +2,32 @@ import { Event, EventEmitter2EventBus, sleep } from "../src";
 
 describe("EventEmitter2EventBus", () => {
     let eventBus: EventEmitter2EventBus;
-
-    let eventsList: unknown[] = [];
-    let counter = 0;
+    let numberOfTriggeredEvents: number;
 
     beforeEach(() => {
         eventBus = new EventEmitter2EventBus();
 
-        eventsList = [];
-        counter = 0;
+        numberOfTriggeredEvents = 0;
     });
 
     test("processes events before shutting down", async () => {
         eventBus.subscribe("test", async () => {
             await sleep(500);
-            eventsList.push(counter++);
+            numberOfTriggeredEvents++;
         });
 
         eventBus.publish(new Event("test"));
         eventBus.publish(new Event("test"));
 
         await eventBus.close();
-        eventsList.push("closed");
 
-        expect(eventsList).toStrictEqual([0, 1, "closed"]);
+        expect(numberOfTriggeredEvents).toBe(2);
     });
 
     test("timeouts while processing the events when the events take to long", async () => {
         eventBus.subscribe("test", async () => {
             await sleep(500);
-            eventsList.push(counter++);
+            numberOfTriggeredEvents++;
         });
 
         eventBus.publish(new Event("test"));
@@ -43,7 +39,7 @@ describe("EventEmitter2EventBus", () => {
 
     test("subscribes once", async () => {
         eventBus.subscribeOnce("test", () => {
-            eventsList.push(counter++);
+            numberOfTriggeredEvents++;
         });
 
         eventBus.publish(new Event("test"));
@@ -51,12 +47,12 @@ describe("EventEmitter2EventBus", () => {
 
         await sleep(20);
 
-        expect(eventsList).toStrictEqual([0]);
+        expect(numberOfTriggeredEvents).toBe(1);
     });
 
     test("unsubscribes from a subscribed event", () => {
         const subscriptionId = eventBus.subscribe("test", () => {
-            eventsList.push(counter++);
+            numberOfTriggeredEvents++;
         });
 
         eventBus.publish(new Event("test"));
@@ -64,12 +60,12 @@ describe("EventEmitter2EventBus", () => {
 
         eventBus.publish(new Event("test"));
 
-        expect(eventsList).toStrictEqual([0]);
+        expect(numberOfTriggeredEvents).toBe(1);
     });
 
     test("unsubscribes from a subscribed event using subscribeOnce", async () => {
         const subscriptionId = eventBus.subscribeOnce("test", () => {
-            eventsList.push(counter++);
+            numberOfTriggeredEvents++;
         });
 
         eventBus.unsubscribe(subscriptionId);
@@ -77,6 +73,6 @@ describe("EventEmitter2EventBus", () => {
 
         await sleep(20);
 
-        expect(eventsList).toStrictEqual([]);
+        expect(numberOfTriggeredEvents).toBe(0);
     });
 });
