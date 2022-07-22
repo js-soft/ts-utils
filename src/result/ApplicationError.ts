@@ -11,4 +11,8 @@ export class ApplicationError extends Error {
     public equals(error: ApplicationError): boolean {
         return this.code === error.code;
     }
+
+    public override toString(): string {
+        return JSON.stringify(this, undefined, 2);
+    }
 }

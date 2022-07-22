@@ -36,7 +36,9 @@ export class Result<T, E extends ApplicationError = ApplicationError> {
 
     public get value(): T {
         if (!this.isSuccess) {
-            throw new Error("Can't get the value of an error result. Use 'error' instead.");
+            throw new Error(
+                `Can't get the value of an error result. Use 'error' instead. Root error: \r\n${this.error}`
+            );
         }
 
         return this._value!;
