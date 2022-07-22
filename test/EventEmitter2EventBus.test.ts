@@ -5,7 +5,9 @@ describe("EventEmitter2EventBus", () => {
     let numberOfTriggeredEvents: number;
 
     beforeEach(() => {
-        eventBus = new EventEmitter2EventBus();
+        eventBus = new EventEmitter2EventBus(() => {
+            // noop
+        });
 
         numberOfTriggeredEvents = 0;
     });
@@ -71,5 +73,25 @@ describe("EventEmitter2EventBus", () => {
         await sleep(20);
 
         expect(numberOfTriggeredEvents).toBe(0);
+    });
+
+    test("catches errors and reports them to the errorCallback", async () => {
+        let catchedError: Error;
+        let catchedErrorNamespace: string;
+        eventBus = new EventEmitter2EventBus((e, n) => {
+            catchedError = e as Error;
+            catchedErrorNamespace = n;
+        });
+
+        eventBus.subscribe("aNamespace", () => {
+            throw new Error("aMessage");
+        });
+
+        eventBus.publish(new Event("aNamespace"));
+
+        await sleep(20);
+
+        expect(catchedError!).toStrictEqual(new Error("aMessage"));
+        expect(catchedErrorNamespace!).toBe("aNamespace");
     });
 });
