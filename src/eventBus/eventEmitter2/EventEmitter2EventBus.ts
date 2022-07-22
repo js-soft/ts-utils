@@ -11,7 +11,10 @@ export class EventEmitter2EventBus implements EventBus {
     private nextId = 0;
     private invocationPromises: (Promise<void> | void)[] = [];
 
-    public constructor(options?: ConstructorOptions) {
+    public constructor(
+        private readonly errorCallback: (error: unknown, namespace: string) => void,
+        options?: ConstructorOptions
+    ) {
         this.emitter = new EventEmitter2({ ...options, wildcard: true, maxListeners: 50, verboseMemoryLeak: true });
     }
 
@@ -48,7 +51,7 @@ export class EventEmitter2EventBus implements EventBus {
 
             const invocationPromise = (async () => await handler(event))();
             this.invocationPromises.push(invocationPromise);
-            await invocationPromise;
+            await invocationPromise.catch((e) => this.errorCallback(e, subscriptionTargetInfo.namespace));
             this.invocationPromises = this.invocationPromises.filter((p) => p !== invocationPromise);
 
             if (isOneTimeHandler) this.listeners.delete(listenerId);
