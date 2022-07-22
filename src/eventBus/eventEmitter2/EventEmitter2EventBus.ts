@@ -13,13 +13,13 @@ export class EventEmitter2EventBus implements EventBus {
 
     public constructor(
         private readonly errorCallback: (error: unknown, namespace: string) => void,
-        eventEmitter2Options?: Omit<ConstructorOptions, "wildcard" | "maxListeners" | "verboseMemoryLeak">
+        eventEmitter2Options?: Omit<ConstructorOptions, "wildcard">
     ) {
         this.emitter = new EventEmitter2({
-            ...eventEmitter2Options,
-            wildcard: true,
             maxListeners: 50,
-            verboseMemoryLeak: true
+            verboseMemoryLeak: true,
+            ...eventEmitter2Options,
+            wildcard: true
         });
     }
 
