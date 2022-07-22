@@ -13,9 +13,14 @@ export class EventEmitter2EventBus implements EventBus {
 
     public constructor(
         private readonly errorCallback: (error: unknown, namespace: string) => void,
-        options?: ConstructorOptions
+        eventEmitter2Options?: Omit<ConstructorOptions, "wildcard" | "maxListeners" | "verboseMemoryLeak">
     ) {
-        this.emitter = new EventEmitter2({ ...options, wildcard: true, maxListeners: 50, verboseMemoryLeak: true });
+        this.emitter = new EventEmitter2({
+            ...eventEmitter2Options,
+            wildcard: true,
+            maxListeners: 50,
+            verboseMemoryLeak: true
+        });
     }
 
     public subscribe<TEvent = any>(
