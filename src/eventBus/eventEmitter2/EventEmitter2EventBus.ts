@@ -5,7 +5,7 @@ import { EventBus, EventHandler, getEventNamespaceFromObject, SubscriptionTarget
 import { SubscriptionTargetInfo } from "../SubscriptionTargetInfo";
 
 export class EventEmitter2EventBus implements EventBus {
-    private readonly emitter: EventEmitter2;
+    protected readonly emitter: EventEmitter2;
 
     private readonly listeners = new Map<number, Listener>();
     private nextId = 0;
