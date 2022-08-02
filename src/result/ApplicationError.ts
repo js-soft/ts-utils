@@ -1,11 +1,6 @@
 export class ApplicationError extends Error {
-    public readonly code: string;
-    public readonly data?: any;
-
-    public constructor(code: string, message: string, data?: any) {
+    public constructor(public readonly code: string, message: string, public readonly data?: any) {
         super(message);
-        this.code = code;
-        this.data = data;
     }
 
     public equals(error: ApplicationError): boolean {
@@ -13,6 +8,6 @@ export class ApplicationError extends Error {
     }
 
     public override toString(): string {
-        return JSON.stringify(this, undefined, 2);
+        return JSON.stringify({ code: this.code, message: this.message, data: this.data }, undefined, 2);
     }
 }
