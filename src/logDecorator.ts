@@ -51,7 +51,7 @@ export function log<T extends LogDecoratorDecoratable>(params?: LogDecoratorPara
                         .join("\n");
                 }
 
-                thisT.log.error(`Error in ${propertyName}: ${error}`);
+                thisT.log.error(`Error in ${propertyName}:`, error);
                 throw error;
             }
         };
