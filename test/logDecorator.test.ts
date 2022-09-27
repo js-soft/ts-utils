@@ -13,13 +13,8 @@ class MockLogger {
         this.traceLog.push(args);
     }
 
-    private errorToString(error: Error): string {
-        return `${error.name}: ${error.message}${error.stack ? `\n${error.stack}` : ""}`;
-    }
-
     public errorLog: any[][] = [];
     public error(...args: any[]): void {
-        args = args.map((arg) => (arg instanceof Error ? this.errorToString(arg) : arg));
         this.errorLog.push(args);
     }
 
@@ -128,15 +123,12 @@ describe("@log", () => {
         ]);
     });
 
-    test.each([
-        { error: "test", expectedMessage: "test" },
-        { error: new ErrorWithoutStack("anErrorMessage"), expectedMessage: "Error: anErrorMessage" }
-    ])(
-        "logs errors that are thrown for the error: '$error'",
-        (params: { error: string | Error; expectedMessage: string }) => {
-            expect(() => decoratedClass.logError(params.error)).toThrow(params.error);
+    test.each(["test", new ErrorWithoutStack("anErrorMessage"), new Error("anErrorMessage")])(
+        "logs errors that are thrown for the error: '%p'",
+        (error: string | Error) => {
+            expect(() => decoratedClass.logError(error)).toThrow(error);
 
-            expect(decoratedClass.log.errorLog).toStrictEqual([["Error in logError:", params.expectedMessage]]);
+            expect(decoratedClass.log.errorLog).toStrictEqual([["Error in logError:", error]]);
         }
     );
 
@@ -145,8 +137,9 @@ describe("@log", () => {
 
         expect(decoratedClass.log.errorLog).toHaveLength(1);
 
-        const concat = decoratedClass.log.errorLog[0].join(" ");
-        expect(concat).not.toMatch(/logDecorator.ts/);
+        const error = decoratedClass.log.errorLog[0][1];
+        expect(error).toBeInstanceOf(Error);
+        expect(error.stack).not.toMatch(/logDecorator.ts/);
     });
 
     test("preserves the original stacktrace in case of nested calls", () => {
@@ -154,7 +147,8 @@ describe("@log", () => {
 
         expect(decoratedClass.log.errorLog).toHaveLength(2);
 
-        const concat = decoratedClass.log.errorLog[1].join(" ");
-        expect(concat).not.toMatch(/logDecorator.ts/);
+        const error = decoratedClass.log.errorLog[1][1];
+        expect(error).toBeInstanceOf(Error);
+        expect(error.stack).not.toMatch(/logDecorator.ts/);
     });
 });
