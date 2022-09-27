@@ -102,29 +102,31 @@ describe("@log", () => {
         ]);
     });
 
-    test.each(["test", { aKey: "aValue" }, ["aString", "anotherString"], [{ aKey: "aValue" }, { aKey: "aValue" }]])(
-        "when logParams=true, logs parameters ('%p') on entry",
-        (...value: any[]) => {
-            decoratedClass.logParams(...value);
+    test.each([
+        [["test"], '"test"'],
+        [["aString", "anotherString"], '"aString", "anotherString"'],
+        [[{ aKey: "aValue" }], '{"aKey":"aValue"}'],
+        [[{ aKey: "aValue" }, { aKey: "aValue" }], '{"aKey":"aValue"}, {"aKey":"aValue"}']
+    ])("when logParams=true, logs parameters ('%p') on entry", (args: any[], formattedParams: string) => {
+        decoratedClass.logParams(...args);
 
-            expect(decoratedClass.log.traceLog).toStrictEqual([
-                [`Calling logParams(${value.map((v) => JSON.stringify(v)).join(", ")})`],
-                ["Returning from logParams"]
-            ]);
-        }
-    );
+        expect(decoratedClass.log.traceLog).toStrictEqual([
+            [`Calling logParams(${formattedParams})`],
+            ["Returning from logParams"]
+        ]);
+    });
 
-    test.each(["test", { aKey: "aValue" }])(
-        "when logReturnValue=true, logs return value ('%p') on exit",
-        (value: any) => {
-            decoratedClass.logReturnValue(value);
+    test.each([
+        ["test", '"test"'],
+        [{ aKey: "aValue" }, '{"aKey":"aValue"}']
+    ])("when logReturnValue=true, logs return value ('%p') on exit", (value: any, formattedReturnValue: string) => {
+        decoratedClass.logReturnValue(value);
 
-            expect(decoratedClass.log.traceLog).toStrictEqual([
-                ["Calling logReturnValue"],
-                [`Returning from logReturnValue with: ${JSON.stringify(value)}`]
-            ]);
-        }
-    );
+        expect(decoratedClass.log.traceLog).toStrictEqual([
+            ["Calling logReturnValue"],
+            [`Returning from logReturnValue with: ${formattedReturnValue}`]
+        ]);
+    });
 
     test.each([
         { error: "test", expectedMessage: "test" },
@@ -152,7 +154,7 @@ describe("@log", () => {
 
         expect(decoratedClass.log.errorLog).toHaveLength(2);
 
-        const concat2 = decoratedClass.log.errorLog[1].join(" ");
-        expect(concat2).not.toMatch(/logDecorator.ts/);
+        const concat = decoratedClass.log.errorLog[1].join(" ");
+        expect(concat).not.toMatch(/logDecorator.ts/);
     });
 });
