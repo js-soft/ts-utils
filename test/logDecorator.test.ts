@@ -38,11 +38,6 @@ class MockLogger {
     public fatal(): void {
         throw new Error("Method not implemented.");
     }
-
-    public reset() {
-        this.traceLog = [];
-        this.errorLog = [];
-    }
 }
 
 class DecoratedClass {
@@ -88,9 +83,8 @@ class DecoratedClass {
 }
 
 describe("@log", () => {
-    const logger = new MockLogger();
-    const decoratedClass = new DecoratedClass(logger);
-    beforeEach(() => logger.reset());
+    let decoratedClass: DecoratedClass;
+    beforeEach(() => (decoratedClass = new DecoratedClass(new MockLogger())));
 
     test.each(["test", { aKey: "aValue" }, undefined, null])(
         "returns original return value for '%p'",
