@@ -1,5 +1,9 @@
 export class ApplicationError extends Error {
-    public constructor(public readonly code: string, message: string, public readonly data?: any) {
+    public constructor(
+        public readonly code: string,
+        message: string,
+        public readonly data?: any
+    ) {
         super(message);
     }
 
