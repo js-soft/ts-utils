@@ -3,7 +3,7 @@
     "version": "2.3.3",
     "description": "Typescript Utils",
     "homepage": "https://js-soft.com/",
-    "repository": "github:js-soft/typescript-utils",
+    "repository": "github:js-soft/ts-utils",
     "license": "MIT",
     "author": "j&s-soft GmbH",
     "main": "dist/index.js",
