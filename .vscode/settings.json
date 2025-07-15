@@ -28,11 +28,6 @@
         "type": "text-and-comment",
         "opacity": 30
     },
-    "todo-tree.highlights.customHighlight": {
-        "TODO:": {
-            "iconColour": "green"
-        }
-    },
     "todo-tree.filtering.excludeGlobs": [
         "**/vendor/**",
         "**/node_modules/**",
@@ -49,7 +44,7 @@
     "xmlTools.splitAttributesOnFormat": true,
     "xmlTools.enforcePrettySelfClosingTagOnFormat": true,
     "editor.codeActionsOnSave": {
-        "source.organizeImports": true
+        "source.organizeImports": "explicit"
     },
     "files.eol": "\n"
 }
