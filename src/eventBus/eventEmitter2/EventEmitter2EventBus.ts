@@ -99,6 +99,7 @@ export class EventEmitter2EventBus implements EventBus {
     public async close(timeout?: number): Promise<void> {
         this.emitter.removeAllListeners();
 
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         const waitForInvocations = Promise.all(this.invocationPromises).catch(() => {
             /* ignore errors */
         });
