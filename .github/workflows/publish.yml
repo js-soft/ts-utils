@@ -2,8 +2,8 @@ name: Publish
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "*"
 
 permissions:
   contents: read
@@ -28,5 +28,7 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run build
-      - run: npm publish
+      - run: bash .ci/publish.sh
+        env:
+          VERSION: ${{ github.ref_name }}
     needs: ["run-checks"]
